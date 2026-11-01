@@ -17,7 +17,8 @@ from client.crypto import (
 from client.key_storage import load_private_keys, save_private_keys
 
 
-SERVER = "http://127.0.0.1:5000"
+SERVER = "https://127.0.0.1:5000"
+CA_CERT = Path(__file__).resolve().parent.parent / "certs" / "ca.crt"
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
 
@@ -38,6 +39,7 @@ def api_request(method, endpoint, token=None, payload=None):
             headers=headers,
             json=payload,
             timeout=10,
+            verify=str(CA_CERT),
         )
     except requests.RequestException as exc:
         raise RuntimeError(f"Could not connect to server: {exc}") from exc

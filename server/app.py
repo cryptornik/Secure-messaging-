@@ -1,10 +1,12 @@
 
 import json
 import re
+import ssl
 import secrets
 import sqlite3
 import base64
 import binascii
+from pathlib import Path
 from functools import wraps
 
 from argon2 import PasswordHasher
@@ -301,4 +303,19 @@ def logout():
 
 if __name__ == "__main__":
     initialize_database()
-    app.run(host="127.0.0.1", port=5000, debug=False)
+
+    project_root = Path(__file__).resolve().parent.parent
+
+    tls_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    tls_context.minimum_version = ssl.TLSVersion.TLSv1_2
+    tls_context.load_cert_chain(
+        certfile=str(project_root / "certs" / "server.crt"),
+        keyfile=str(project_root / "certs" / "server.key"),
+    )
+
+    app.run(
+        host="127.0.0.1",
+        port=5000,
+        debug=False,
+        ssl_context=tls_context,
+    )
